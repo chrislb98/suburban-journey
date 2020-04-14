@@ -2,6 +2,7 @@ import requests
 import sys
 import json
 import urllib3
+import time
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 #Get the anonymous session cookie with location data
@@ -56,15 +57,25 @@ def get_timeslots(id, cookie):
 
 def main():
     
+    #Check that enough arguments were provided
     if len(sys.argv) != 3:
         print "(+) usage: %s <state> <frequency in seconds>" % (sys.argv[0])
         print "(+) eg: %s VIRGINIA 60" % sys.argv[0]
         sys.exit(-1)
 
-    print ("Finding Wegmans pickup timeslots in the state of %s" % sys.argv[1])
-    frequency = sys.argv[1]  
+    #Set the repeat frequency
+    frequency = sys.argv[2]  
+    frequency = float(frequency)
+    
+    #Get access cookie
+    print ("Finding Wegmans pickup timeslots in the state of %s every %.1f seconds." % (sys.argv[1], frequency))
     cookie = get_cookie()
-    get_stores(sys.argv[1], cookie)
+    
+    #Check times, repeating on intervals
+    while True:
+        get_stores(sys.argv[1], cookie)
+        print("Pausing for %.1f seconds..." % frequency)
+        time.sleep(frequency)
     
 if __name__ == "__main__":
     main()
