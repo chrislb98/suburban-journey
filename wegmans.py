@@ -9,16 +9,15 @@ def get_cookie():
 
     getcookie_url = "https://shop.wegmans.com/api/v2/user_sessions"
     getcookie_url2 = "https://shop.wegmans.com/api/v2/users"
-    proxies = {"http": "http://127.0.0.1:8080", "https": "http://127.0.0.1:8080"}
     cookie_json = {"binary":"web-ecom","binary_version":"2.25.122","is_retina":False,"os_version":"Win32","pixel_density":"2.0","push_token":"","screen_height":1080,"screen_width":1920}
     
     #send first request to get an Authorization Bearer header token
-    response = requests.post(getcookie_url, json=cookie_json, proxies=proxies, verify=False)
+    response = requests.post(getcookie_url, json=cookie_json)
     data=json.loads(response.content)
     #print ("Acquired cookie %s") % data["session_token"]
     
     #send the second request to get the api key
-    response = requests.post(getcookie_url2, headers={"Authorization":"Bearer " + data["session_token"]}, proxies=proxies, verify=False)
+    response = requests.post(getcookie_url2, headers={"Authorization":"Bearer " + data["session_token"]})
     #print ("Acquired api key %s") % response.cookies['session-prd-weg']
     return(response.cookies['session-prd-weg'])
     
@@ -26,10 +25,9 @@ def get_cookie():
 #Get store list based on provided state
 def get_stores(province, cookie):
     getstores_url = "https://shop.wegmans.com/api/v2/stores?_nocache=1586788268363&show_ecommerce=true&show_pickup=true"
-    proxies = {"http": "http://127.0.0.1:8080", "https": "http://127.0.0.1:8080"}
     
     #pull the stores
-    response = requests.get(getstores_url, proxies=proxies, verify=False)
+    response = requests.get(getstores_url)
     data=json.loads(response.content)
     
     #iterate through each store
@@ -43,17 +41,16 @@ def get_stores(province, cookie):
 
 #Get timeslots the selected store
 def get_timeslots(id, cookie):
-    proxies = {"http": "http://127.0.0.1:8080", "https": "http://127.0.0.1:8080"}
     storeselect_url = "https://shop.wegmans.com/api/v2/user"
     timeslots_url = "https://shop.wegmans.com/api/v2/timeslots"
     cookies = {'session-prd-weg':cookie}
     store_json = {"store_id":id}
     
     #attach a store to your user session
-    select = requests.patch(storeselect_url, cookies=cookies, json=store_json, proxies=proxies, verify=False)
+    select = requests.patch(storeselect_url, cookies=cookies, json=store_json)
     
     #pull the times for your current store
-    response = requests.get(timeslots_url, cookies = cookies, proxies=proxies, verify=False)
+    response = requests.get(timeslots_url, cookies = cookies)
     data=json.loads(response.content)
     print (data["message"])
 
@@ -66,7 +63,6 @@ def main():
 
     print ("Finding Wegmans pickup timeslots in the state of %s" % sys.argv[1])
     frequency = sys.argv[1]  
-    proxies = {"http": "http://127.0.0.1:8080", "https": "http://127.0.0.1:8080"}
     cookie = get_cookie()
     get_stores(sys.argv[1], cookie)
     
