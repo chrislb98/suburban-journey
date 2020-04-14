@@ -44,8 +44,15 @@ def get_stores(province, cookie):
 #Get timeslots the selected store
 def get_timeslots(id, cookie):
     proxies = {"http": "http://127.0.0.1:8080", "https": "http://127.0.0.1:8080"}
+    storeselect_url = "https://shop.wegmans.com/api/v2/user"
     timeslots_url = "https://shop.wegmans.com/api/v2/timeslots"
-    cookies = {'session-prd-weg':"" + cookie}
+    cookies = {'session-prd-weg':cookie}
+    store_json = {"store_id":id}
+    
+    #attach a store to your user session
+    select = requests.patch(storeselect_url, cookies=cookies, json=store_json, proxies=proxies, verify=False)
+    
+    #pull the times for your current store
     response = requests.get(timeslots_url, cookies = cookies, proxies=proxies, verify=False)
     data=json.loads(response.content)
     print (data["message"])
